@@ -190,19 +190,7 @@
         .touch-btn:active { transform:scale(0.92); border-color:var(--neon-green); box-shadow:var(--glow-green); background:rgba(57,255,20,0.08); }
         #btn-up { border-color:var(--neon-green); }
         #btn-down { border-color:var(--neon-red); }
-        #libras-window { position:absolute; bottom:100px; right:16px; width:240px; height:155px; background:rgba(2,2,8,0.88); border:2px solid var(--neon-secondary); border-radius:12px; box-shadow:var(--glow-secondary); backdrop-filter:blur(8px); z-index:20; padding:8px; display:flex; flex-direction:column; overflow:hidden; pointer-events:auto; transition:border-color 0.4s; }
-        .libras-title { font-size:0.62rem; font-family:var(--mono-font); color:var(--neon-secondary); border-bottom:1px solid rgba(0,229,255,0.25); padding-bottom:4px; margin-bottom:6px; display:flex; justify-content:space-between; letter-spacing:1px; }
-        .libras-content { display:flex; flex-grow:1; gap:6px; overflow:hidden; }
-        .libras-avatar-box { width:48px; height:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(0,229,255,0.15); border-radius:6px; display:flex; justify-content:center; align-items:center; position:relative; }
-        .avatar-sign { width:35px; height:70px; position:relative; }
-        .avatar-head { width:14px; height:14px; background:radial-gradient(circle,var(--neon-secondary) 0%,rgba(0,229,255,0.4) 100%); border-radius:50%; position:absolute; left:10px; top:6px; box-shadow:0 0 5px var(--neon-secondary); animation:head-bob 3s infinite ease-in-out; }
-        @keyframes head-bob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-2px);} }
-        .avatar-body { width:20px; height:24px; background:linear-gradient(135deg,rgba(0,229,255,0.2),rgba(188,19,254,0.15)); border:1px solid var(--neon-secondary); border-radius:5px 5px 2px 2px; position:absolute; left:7px; top:23px; }
-        .avatar-arm-l, .avatar-arm-r { width:4px; height:17px; background:var(--neon-secondary); border-radius:2px; position:absolute; top:25px; transform-origin:top center; }
-        .avatar-arm-l { left:1px; animation:arm-move-l 1.5s infinite ease-in-out alternate; }
-        .avatar-arm-r { right:1px; animation:arm-move-r 1.8s infinite ease-in-out alternate; }
-        @keyframes arm-move-l { 0%{transform:rotate(-20deg);} 100%{transform:rotate(20deg);} }
-        @keyframes arm-move-r { 0%{transform:rotate(20deg);} 100%{transform:rotate(-20deg);} }
+      
         .libras-text-box { flex-grow:1; font-family:var(--mono-font); font-size:0.68rem; color:#d0d0ff; line-height:1.25; overflow-y:auto; word-break:break-word; }
         #quiz-overlay { position:absolute; top:0;left:0; width:100%;height:100%; background:rgba(2,2,6,0.9); backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; z-index:50; padding:15px; }
         .quiz-card { max-width:570px; width:100%; background:rgba(4,4,12,0.97); border:2px solid var(--neon-primary); border-radius:16px; box-shadow:var(--glow-primary); padding:24px; text-align:center; position:relative; transform:scale(0.85); opacity:0; transition:all 0.35s cubic-bezier(0.175,0.885,0.32,1.25); }
@@ -249,8 +237,34 @@
             .hud-right { align-items:center; border-right:none; border-left:3px solid var(--neon-green); }
             .quiz-options { grid-template-columns:1fr; }
             .quiz-question { font-size:1.05rem; }
-            #libras-window { width:calc(100% - 32px); right:16px; left:16px; }
+           
             .wasted-title, .victory-title { font-size:2.2rem; }
+        }
+
+      
+[vw] {
+    z-index: 99999 !important;
+}
+
+[vw-access-button] {
+    z-index: 99999 !important;
+}
+
+[vw-plugin-wrapper] {
+    z-index: 99999 !important;
+}
+
+        /* Isola a interação do VLibras sem alterar os controles do jogo */
+        #vlibras-widget, #vlibras-widget * {
+            touch-action:auto !important;
+        }
+        #vlibras-widget {
+            position:relative;
+            z-index:2147483647 !important;
+        }
+        #vlibras-widget [vw-access-button],
+        #vlibras-widget [vw-plugin-wrapper] {
+            z-index:2147483647 !important;
         }
     </style>
 </head>
@@ -351,20 +365,7 @@
     </div>
 </div>
 
-<div id="libras-window">
-    <div class="libras-title"><span>TRANSLATOR LIBRAS</span><span style="color:var(--neon-secondary);">● ONLINE</span></div>
-    <div class="libras-content">
-        <div class="libras-avatar-box">
-            <div class="avatar-sign">
-                <div class="avatar-head"></div>
-                <div class="avatar-body"></div>
-                <div class="avatar-arm-l"></div>
-                <div class="avatar-arm-r"></div>
-            </div>
-        </div>
-        <div class="libras-text-box" id="libras-text">SISTEMA DE ASSISTÊNCIA DE SINAIS PRONTO...</div>
-    </div>
-</div>
+
 
 <div id="quiz-overlay">
     <div class="quiz-card" id="quiz-card">
@@ -396,6 +397,11 @@
 </div>
 
 <canvas id="game-canvas"></canvas>
+
+<!-- Compatibilidade com o sistema interno de mensagens do jogo -->
+<div id="libras-window" aria-hidden="true" style="display:none !important;">
+    <div id="libras-text"></div>
+</div>
 
 <script>
 window.addEventListener('load', () => {
@@ -1301,7 +1307,21 @@ function triggerVictory() {
     elVictoryScreen.style.display='flex'; translateToLibras('VICTORY');
 }
 
-} // fim initApp
+} 
 </script>
+
+
+<!-- VLibras - acessibilidade em Libras -->
+<div vw class="enabled" id="vlibras-widget">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+
 </body>
 </html>
